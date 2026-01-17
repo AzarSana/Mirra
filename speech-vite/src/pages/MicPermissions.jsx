@@ -71,10 +71,10 @@ export default function MicPermission() {
     <div className="flex items-center gap-3">
       <img
         src={isDark ? darkLogo : lightLogo}
-        alt="LuMo"
+        alt="Sono"
         className="h-7 w-auto"
       />
-      <p className={isDark ? "text-white" : "text-black"}>LuMo</p>
+      <p className={isDark ? "text-white" : "text-black"}>Sono</p>
     </div>
 
     {/* Theme toggle (TOP RIGHT – restored) */}
@@ -123,7 +123,7 @@ export default function MicPermission() {
               isDark ? "text-white/90" : "text-black/90",
             ].join(" ")}
           >
-            Allow <span className="text-[#7A86D6] font-bold">LuMo</span> to access your Microphone
+            Allow <span className="text-[#7A86D6] font-bold">Sono</span> to access your Microphone
           </h1>
 
           {/* Subtitle */}
@@ -133,7 +133,7 @@ export default function MicPermission() {
               isDark ? "text-white/65" : "text-black/60",
             ].join(" ")}
           >
-            LuMo needs the microphone to listen and identify speech.
+            Sono needs the microphone to listen and identify speech.
           </p>
 
           {/* Action area */}

@@ -68,10 +68,10 @@ export default function Landing() {
           <div className="flex items-center gap-3">
             <img
               src={isDark ? darkLogo : lightLogo}
-              alt="LuMo"
+              alt="Sono"
               className="h-7 w-auto"
             />
-            <p className={isDark ? "text-white" : "text-black"}>LuMo</p>
+            <p className={isDark ? "text-white" : "text-black"}>Sono</p>
           </div>
 
           {/* Theme toggle (top right) */}
@@ -115,9 +115,9 @@ export default function Landing() {
                 isDark ? "text-white/90" : "text-black/90",
               ].join(" ")}
             >
-              See <span className="text-[#7A86D6]">Emotion</span> in
+              See <span className="text-[#7A86D6] font-bold">Emotion</span> in
               <br />
-              <span className="text-[#7A86D6]">Every Word</span>.
+              <span className="text-[#7A86D6] font-bold">Every Word</span>.
             </h1>
 
             <p
@@ -153,7 +153,7 @@ export default function Landing() {
                   : "shadow-[0_14px_40px_rgba(122,134,214,0.25)]",
               ].join(" ")}
             >
-              Try LuMo Now
+              Try Sono Now
             </button>
 
           </div>

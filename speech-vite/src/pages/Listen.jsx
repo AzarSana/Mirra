@@ -52,16 +52,16 @@ export default function Listen({ theme = "light", setTheme }) {
         />
       </div>
 
-      {/* Header */}
-      <header className="relative z-10 px-8 pt-8">
+      {/* Header (desktop unchanged; tablet/mobile tighter padding only) */}
+      <header className="relative z-10 px-8 pt-8 max-md:px-6 max-md:pt-6 max-sm:px-5 max-sm:pt-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
               src={isDark ? darkLogo : lightLogo}
-              alt="LuMo"
+              alt="Sono"
               className="h-7 w-auto"
             />
-            <p className={isDark ? "text-white" : "text-black"}>LuMo</p>
+            <p className={isDark ? "text-white" : "text-black"}>Sono</p>
           </div>
 
           <button
@@ -86,31 +86,22 @@ export default function Listen({ theme = "light", setTheme }) {
         </div>
       </header>
 
-      {/* Top status */}
-      <div className="relative z-10 mt-14 flex flex-col items-center gap-3 px-6 text-center max-md:mt-10">
+      {/* Top status (desktop unchanged; tablet/mobile slightly tighter margin only) */}
+      <div className="relative z-10 mt-14 max-md:mt-10 max-sm:mt-8 flex flex-col items-center gap-3 px-6 text-center">
         {listening ? (
-          <>
-            <div className="lumo-wave" aria-hidden="true">
+          <div className="lumo-wave" aria-hidden="true">
             {[0, 120, 240, 360].map((delay) => (
-                <span
+              <span
                 key={delay}
-                className={[
-                    "lumo-bar",
-                    isDark ? "bg-white/90" : "bg-black/80",
-                ].join(" ")}
+                className={["lumo-bar", isDark ? "bg-white/90" : "bg-black/80"].join(" ")}
                 style={{ animationDelay: `${delay}ms` }}
-                />
+              />
             ))}
-            </div>
-
-
-
-            
-          </>
+          </div>
         ) : (
           <h2
             className={[
-              "text-3xl font-medium",
+              "text-xl font-medium sm:text-3xl",
               isDark ? "text-white/90" : "text-black/90",
             ].join(" ")}
           >
@@ -119,33 +110,32 @@ export default function Listen({ theme = "light", setTheme }) {
         )}
       </div>
 
-      {/* Main card */}
-      <main className="relative z-10 flex items-center justify-center px-6 pb-10">
+      {/* Main card (desktop unchanged; tablet/mobile padding + spacing reduced only) */}
+      <main className="relative z-10 flex items-center justify-center px-6 max-md:px-5 pb-10 max-md:pb-8 max-sm:pb-6">
         <div
           className={[
             "mt-10 w-full max-w-4xl rounded-3xl border p-10 sm:p-14",
+            "max-md:mt-8 max-sm:mt-6",
+            "max-md:p-8 max-sm:p-6",
             isDark
               ? "border-white/10 bg-white/5"
               : "border-[#7A86D6]/35 bg-white/70",
           ].join(" ")}
         >
-          {/* Transcript area */}
+          {/* Transcript area (desktop unchanged; a bit taller on tablet/phone) */}
           <div
-  className={[
-    "mx-auto w-full max-w-2xl rounded-2xl border",
-    // ⬇️ height + scrolling
-    "h-[160px] sm:h-[220px]",
-    "overflow-y-auto overscroll-contain",
-    // ⬇️ padding
-    "p-6 sm:p-7",
-    // ⬇️ smooth scroll + nicer scrollbar
-    "scroll-smooth",
-    isDark
-      ? "border-white/10 bg-white/5"
-      : "border-[#7A86D6]/35 bg-white/80",
-  ].join(" ")}
->
-
+            className={[
+              "mx-auto w-full max-w-2xl rounded-2xl border",
+              "h-[160px] sm:h-[220px]",
+              "max-md:h-[220px] max-sm:h-[240px]",
+              "overflow-y-auto overscroll-contain",
+              "p-6 sm:p-7 max-sm:p-5",
+              "scroll-smooth",
+              isDark
+                ? "border-white/10 bg-white/5"
+                : "border-[#7A86D6]/35 bg-white/80",
+            ].join(" ")}
+          >
             {!listening ? (
               <p className="text-[#7A86D6] text-base sm:text-lg">
                 Press start to begin live transcription...
@@ -187,8 +177,8 @@ export default function Listen({ theme = "light", setTheme }) {
             )}
           </div>
 
-          {/* Start/Stop button */}
-          <div className="mt-10 flex flex-col items-center">
+          {/* Start/Stop button (desktop unchanged; full width on tablet/mobile already) */}
+          <div className="mt-10 max-md:mt-8 max-sm:mt-6 flex flex-col items-center">
             <button
               onClick={() => setListening((v) => !v)}
               className={[
@@ -205,8 +195,8 @@ export default function Listen({ theme = "light", setTheme }) {
             </button>
           </div>
 
-          {/* Toggles row */}
-          <div className="mt-10 grid grid-cols-2 gap-10 max-w-2xl mx-auto">
+          {/* Toggles row (desktop unchanged; stack on phone only) */}
+          <div className="mt-10 max-md:mt-8 max-sm:mt-6 grid grid-cols-2 gap-10 max-w-2xl mx-auto max-sm:grid-cols-1 max-sm:gap-6">
             <Toggle
               label="Emojis"
               value={emoticons}
@@ -233,6 +223,8 @@ function Toggle({ label, value, onChange, isDark, alignRight = false }) {
       className={[
         "flex flex-col gap-2",
         alignRight ? "items-end" : "items-start",
+        // on phone, center toggles (desktop unchanged)
+        "max-sm:items-center",
       ].join(" ")}
     >
       <div
