@@ -105,14 +105,7 @@ export default function Listen({ theme = "light", setTheme }) {
 
 
 
-            <h2
-              className={[
-                "text-3xl font-medium",
-                isDark ? "text-white/90" : "text-black/90",
-              ].join(" ")}
-            >
-              Listening…
-            </h2>
+            
           </>
         ) : (
           <h2
@@ -138,13 +131,21 @@ export default function Listen({ theme = "light", setTheme }) {
         >
           {/* Transcript area */}
           <div
-            className={[
-              "mx-auto w-full max-w-2xl rounded-2xl border p-6 sm:p-7",
-              isDark
-                ? "border-white/10 bg-white/5"
-                : "border-[#7A86D6]/35 bg-white/80",
-            ].join(" ")}
-          >
+  className={[
+    "mx-auto w-full max-w-2xl rounded-2xl border",
+    // ⬇️ height + scrolling
+    "h-[160px] sm:h-[220px]",
+    "overflow-y-auto overscroll-contain",
+    // ⬇️ padding
+    "p-6 sm:p-7",
+    // ⬇️ smooth scroll + nicer scrollbar
+    "scroll-smooth",
+    isDark
+      ? "border-white/10 bg-white/5"
+      : "border-[#7A86D6]/35 bg-white/80",
+  ].join(" ")}
+>
+
             {!listening ? (
               <p className="text-[#7A86D6] text-base sm:text-lg">
                 Press start to begin live transcription...

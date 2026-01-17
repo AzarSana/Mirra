@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import micIcon from "../assets/mic.png"; // <-- rename to your actual file name
 import lightLogo from "../assets/lightLogo.png";
 import darkLogo from "../assets/darkLogo.png";
+import { useNavigate } from "react-router-dom";
 
 export default function MicPermission() {
+  const navigate = useNavigate();
   const getInitialTheme = () => {
     if (typeof window === "undefined") return "light";
     return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches
@@ -156,7 +158,7 @@ export default function MicPermission() {
                 <p className={isDark ? "text-white/80" : "text-black/80"}>
                   Microphone access granted!
                 </p>
-                <button className="w-full max-w-lg rounded-2xl bg-[#7A86D6] px-8 py-4 text-base font-bold text-white transition hover:opacity-95 active:scale-[0.99]">
+                <button onClick={() => navigate("/listen")} className="w-full max-w-lg rounded-2xl bg-[#7A86D6] px-8 py-4 text-base font-bold text-white transition hover:opacity-95 active:scale-[0.99]">
                   Continue
                 </button>
               </div>
