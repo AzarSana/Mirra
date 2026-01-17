@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react-cookie": "^8.0.1",
+    "tailwind": "^4.0.0"
+  }
+}
