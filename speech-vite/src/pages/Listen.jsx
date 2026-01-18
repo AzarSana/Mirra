@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-// 1. We only need Speech Recognition now (No MediaRecorder)
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import axios from "axios";
 
@@ -22,22 +21,18 @@ export default function Listen({ theme = "light", setTheme }) {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
-  // --- LOGIC START ---
-
   const {
     transcript,
     resetTranscript,
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
 
-  // The Loop
   useEffect(() => {
     let intervalId;
 
     if (listening) {
       SpeechRecognition.startListening({ continuous: true });
       
-      // Check every 2 seconds if we have a finished sentence
       intervalId = setInterval(() => {
         handleSentenceCheck();
       }, 2000); 
@@ -48,37 +43,27 @@ export default function Listen({ theme = "light", setTheme }) {
     }
 
     return () => clearInterval(intervalId);
-  }, [listening, transcript]); // Depend on transcript to see if it changed
+  }, [listening, transcript]);
 
 
   const handleSentenceCheck = async () => {
-    // 1. Get current text
     const currentText = transcript;
     
-    // 2. If it's empty or too short, ignore
     if (!currentText || currentText.trim().length < 2) return;
 
-    // 3. Clear browser buffer immediately so user can keep talking
     resetTranscript();
 
-    // 4. Optimistically add to UI (Gray/Neutral) so it feels instant
     const tempId = Date.now();
     setMessages(prev => [...prev, { id: tempId, text: currentText, emotion: "Neutral" }]);
 
     try {
-      // 5. Send TEXT to Gemini
-      // Note: We send JSON now, not FormData
       const response = await axios.post("http://localhost:5000/process-audio", { text: currentText });
-      
-      // 6. Update the message with Real Emotion
-      // We parse the raw response string or object
+
       let detectedEmotion = "Neutral";
       
       if (typeof response.data.emotion === 'string') {
-          // Sometimes it comes back clean "Happy"
           detectedEmotion = response.data.emotion.replace(/[^a-zA-Z]/g, ""); 
       } else if (response.data.emotion) {
-          // Sometimes it is an object
           detectedEmotion = response.data.emotion;
       }
 
@@ -93,10 +78,6 @@ export default function Listen({ theme = "light", setTheme }) {
     }
   };
 
-  // --- LOGIC END ---
-
-
-  // Your Original Style Logic (Unchanged)
   const getEmotionStyle = (emotionName) => {
     const fontFix = {
       "Source Serif 4": "'Source Serif 4', serif",
@@ -107,10 +88,8 @@ export default function Listen({ theme = "light", setTheme }) {
       "Baloo Bhai 2": "'Baloo Bhai 2', cursive"
     };
 
-    // Clean up emotion string (remove punctuation) just in case
     const cleanEmotion = emotionName ? emotionName.replace(/[^a-zA-Z]/g, "") : "Neutral";
     
-    // Fallback
     const safeEmotion = EMOTION_STYLES[cleanEmotion] ? cleanEmotion : "Neutral";
     const config = EMOTION_STYLES[safeEmotion];
     
@@ -181,7 +160,7 @@ export default function Listen({ theme = "light", setTheme }) {
             ) : (
               <div className="leading-relaxed">
                 
-                {/* 1. Finalized Messages from Gemini */}
+                {/* Finalized Messages from Gemini */}
                 {messages.map((item, idx) => (
                   <span key={idx} className="inline-block mr-3 mb-2 animate-in fade-in duration-300">
                     <span style={getEmotionStyle(item.emotion)} className="text-xl sm:text-2xl font-medium">
@@ -195,7 +174,7 @@ export default function Listen({ theme = "light", setTheme }) {
                   </span>
                 ))}
 
-                {/* 2. Live Ghost Text (Browser) */}
+                {/* Live Ghost Text (Browser) */}
                 {listening && transcript && (
                      <span className="inline-block mr-3 mb-2 opacity-50 italic text-xl sm:text-2xl" style={{color: isDark ? '#fff' : '#000'}}>
                         {transcript} ...
@@ -225,7 +204,6 @@ export default function Listen({ theme = "light", setTheme }) {
   );
 }
 
-// Toggle Component (Unchanged)
 function Toggle({ label, value, onChange, isDark, alignRight = false }) {
   return (
     <div className={["flex flex-col gap-2", alignRight ? "items-end" : "items-start", "max-sm:items-center"].join(" ")}>

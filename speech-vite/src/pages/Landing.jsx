@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 export default function Landing() {
   const navigate = useNavigate();
 
-  // Start from system preference, then allow user toggle
   const getInitialTheme = () => {
     if (typeof window === "undefined") return "light";
     return window.matchMedia?.("(prefers-color-scheme: dark)")?.matches
@@ -93,9 +92,7 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Main
-          Desktop stays EXACTLY centered (your current behavior).
-          On iPad/Phone (<= md): hero goes to top, CTA sits at bottom. */}
+      {/* Main content */}
       <main className="relative z-10 px-6">
         <div
           className={[
@@ -109,15 +106,15 @@ export default function Landing() {
           {/* HERO (top on iPad/Phone) */}
           <div className="w-full">
             <h1
-  className={[
-    "text-[76px] font-semibold leading-[1.05] tracking-tight",
-    "max-md:text-[56px] max-sm:text-[44px]",
-    isDark ? "text-white/90" : "text-black/90",
-  ].join(" ")}
->
-  See{" "}
-  <span
-    className="
+              className={[
+                "text-[76px] font-semibold leading-[1.05] tracking-tight",
+                "max-md:text-[56px] max-sm:text-[44px]",
+                isDark ? "text-white/90" : "text-black/90",
+              ].join(" ")}
+            >
+              See{" "}
+              <span
+                className="
       font-bold
       bg-gradient-to-r
       from-[#6A76AE]
@@ -125,13 +122,13 @@ export default function Landing() {
       bg-clip-text
       text-transparent
     "
-  >
-    Emotion
-  </span>{" "}
-  in
-  <br />
-  <span
-    className="
+              >
+                Emotion
+              </span>{" "}
+              in
+              <br />
+              <span
+                className="
       font-bold
       bg-gradient-to-r
       from-[#6A76AE]
@@ -139,11 +136,11 @@ export default function Landing() {
       bg-clip-text
       text-transparent
     "
-  >
-    Every Word
-  </span>
-  .
-</h1>
+              >
+                Every Word
+              </span>
+              .
+            </h1>
 
 
             <p
@@ -161,7 +158,7 @@ export default function Landing() {
           {/* CTA (bottom on iPad/Phone, unchanged on desktop) */}
           <div className="mt-32 flex flex-col items-center gap-6 max-md:mt-auto">
             <button
-            onClick={() => navigate("/mic")}
+              onClick={() => navigate("/mic")}
               className={[
                 // Layout
                 "w-full max-w-2xl max-md:max-w-full",

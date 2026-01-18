@@ -64,7 +64,6 @@ export default function MicPermission() {
       </div>
 
       {/* Header (same vibe as landing) */}
-      {/* Header */}
 <header className="relative z-10 px-8 pt-8">
   <div className="flex items-center justify-between">
     {/* Brand */}
