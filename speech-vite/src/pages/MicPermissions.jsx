@@ -123,14 +123,14 @@ export default function MicPermission() {
               isDark ? "text-white/90" : "text-black/90",
             ].join(" ")}
           >
-            Allow <span className="
+            Allow microphone access so <span className="
       font-bold
       bg-gradient-to-r
       from-[#6A76AE]
       to-[#B0BCF8]
       bg-clip-text
       text-transparent
-    ">Sono</span> to access your Microphone
+    ">Sono</span> can listen
           </h1>
 
           {/* Subtitle */}

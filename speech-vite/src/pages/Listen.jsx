@@ -183,7 +183,7 @@ export default function Listen({ theme = "light", setTheme }) {
               onClick={() => setListening((v) => !v)}
               className={[
                 "w-full max-w-2xl max-md:max-w-full",
-                "rounded-2xl px-8 py-5 text-lg font-bold transition active:scale-[0.99]",
+                "rounded-2xl px-8 py-3 text-lg font-bold transition active:scale-[0.99]",
                 listening ? "bg-[#B0BCF8] text-black/85" : "bg-[#6A76AE] text-white",
                 "hover:opacity-95",
                 isDark
