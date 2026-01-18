@@ -1,10 +1,19 @@
+
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import google.generativeai as genai
+# Load environment variables from .env if present
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
-# --- ⚠️ PASTE YOUR KEY HERE ---
-GOOGLE_API_KEY = "AIzaSyAfFQUPZH1HD3sLbYoyG1yWmKdC3W8aoGM"
+
+# --- 🏆 NEW KEY HERE ---
+# Prefer .env file or environment variable for security
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 genai.configure(api_key=GOOGLE_API_KEY)
 
