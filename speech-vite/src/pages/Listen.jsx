@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+// 1. We only need Speech Recognition now (No MediaRecorder)
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+import axios from "axios";
+
 import lightLogo from "../assets/lightLogo.png";
 import darkLogo from "../assets/darkLogo.png";
 import { EMOTION_STYLES } from "../styles/emotionStyles";
@@ -7,29 +11,93 @@ export default function Listen({ theme = "light", setTheme }) {
   const isDark = theme === "dark";
 
   // UI state
-  const [listening, setListening] = useState(false);
+  const [listening, setListening] = useState(false); 
   const [emoticons, setEmoticons] = useState(true);
   const [colours, setColours] = useState(true);
+
+  // Stores our finalized messages
+  const [messages, setMessages] = useState([]); 
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
-  // Demo transcript representing every emotion
-  const demoTranscript = [
-    { emotion: "Anger", text: "I AM SO MAD!" },
-    { emotion: "Happy", text: "Life is wonderful." },
-    { emotion: "Sad", text: "I'm feeling a bit down." },
-    { emotion: "Calm", text: "Everything is peaceful." },
-    { emotion: "Fear", text: "What was that noise?" },
-    { emotion: "Surprised", text: "I can't believe it!" },
-    { emotion: "Disgust", text: "That is quite unpleasant." },
-    { emotion: "Neutral", text: "It is what it is." },
-    { emotion: "Sarcasm", text: "Oh, that's just GREAT." },
-  ];
+  // --- LOGIC START ---
 
+  const {
+    transcript,
+    resetTranscript,
+    browserSupportsSpeechRecognition
+  } = useSpeechRecognition();
+
+  // The Loop
+  useEffect(() => {
+    let intervalId;
+
+    if (listening) {
+      SpeechRecognition.startListening({ continuous: true });
+      
+      // Check every 2 seconds if we have a finished sentence
+      intervalId = setInterval(() => {
+        handleSentenceCheck();
+      }, 2000); 
+
+    } else {
+      SpeechRecognition.stopListening();
+      resetTranscript();
+    }
+
+    return () => clearInterval(intervalId);
+  }, [listening, transcript]); // Depend on transcript to see if it changed
+
+
+  const handleSentenceCheck = async () => {
+    // 1. Get current text
+    const currentText = transcript;
+    
+    // 2. If it's empty or too short, ignore
+    if (!currentText || currentText.trim().length < 2) return;
+
+    // 3. Clear browser buffer immediately so user can keep talking
+    resetTranscript();
+
+    // 4. Optimistically add to UI (Gray/Neutral) so it feels instant
+    const tempId = Date.now();
+    setMessages(prev => [...prev, { id: tempId, text: currentText, emotion: "Neutral" }]);
+
+    try {
+      // 5. Send TEXT to Gemini
+      // Note: We send JSON now, not FormData
+      const response = await axios.post("http://localhost:5000/process-audio", { text: currentText });
+      
+      // 6. Update the message with Real Emotion
+      // We parse the raw response string or object
+      let detectedEmotion = "Neutral";
+      
+      if (typeof response.data.emotion === 'string') {
+          // Sometimes it comes back clean "Happy"
+          detectedEmotion = response.data.emotion.replace(/[^a-zA-Z]/g, ""); 
+      } else if (response.data.emotion) {
+          // Sometimes it is an object
+          detectedEmotion = response.data.emotion;
+      }
+
+      setMessages(prev => prev.map(msg => 
+        msg.id === tempId ? { ...msg, emotion: detectedEmotion } : msg
+      ));
+      
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+    } catch (error) {
+      console.error("Gemini Error:", error);
+    }
+  };
+
+  // --- LOGIC END ---
+
+
+  // Your Original Style Logic (Unchanged)
   const getEmotionStyle = (emotionName) => {
-    // 1. Fix Font Names: Wrap fonts with spaces/numbers in quotes
     const fontFix = {
       "Source Serif 4": "'Source Serif 4', serif",
       "Slackside One": "'Slackside One', cursive",
@@ -39,7 +107,13 @@ export default function Listen({ theme = "light", setTheme }) {
       "Baloo Bhai 2": "'Baloo Bhai 2', cursive"
     };
 
-    const config = EMOTION_STYLES[emotionName];
+    // Clean up emotion string (remove punctuation) just in case
+    const cleanEmotion = emotionName ? emotionName.replace(/[^a-zA-Z]/g, "") : "Neutral";
+    
+    // Fallback
+    const safeEmotion = EMOTION_STYLES[cleanEmotion] ? cleanEmotion : "Neutral";
+    const config = EMOTION_STYLES[safeEmotion];
+    
     if (!config) return {};
 
     const rawFont = config.fontFamily;
@@ -47,17 +121,20 @@ export default function Listen({ theme = "light", setTheme }) {
 
     return {
       fontFamily: styledFont,
-      // 2. Fix Text Color: Use white/black theme colors when 'colours' is OFF
       color: colours 
         ? (isDark ? config.darkColor : config.lightColor) 
         : (isDark ? "#FFFFFF" : "#000000"), 
-      transition: "color 0.3s ease",
+      transition: "color 0.5s ease",
     };
   };
 
+  if (!browserSupportsSpeechRecognition) {
+    return <span>Browser doesn't support speech recognition. Use Chrome.</span>;
+  }
+
   return (
     <div className={["relative min-h-screen w-full overflow-hidden transition-colors duration-300", isDark ? "bg-[#0B0E17]" : "bg-white"].join(" ")}>
-      {/* Blobs */}
+      {/* Blobs (Unchanged) */}
       <div className="pointer-events-none absolute inset-0">
         <div className="blob absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full blur-3xl bg-[#7A86D6]/35" style={{ animation: "blob-float-1 16s ease-in-out infinite" }} />
         <div className="absolute left-1/2 bottom-2 -translate-x-1/2">
@@ -96,23 +173,35 @@ export default function Listen({ theme = "light", setTheme }) {
       <main className="relative z-10 flex items-center justify-center px-6 pb-10">
         <div className={["mt-10 w-full max-w-4xl rounded-3xl border p-10 sm:p-14", isDark ? "border-white/10 bg-white/5" : "border-[#B0BCF8]/35 bg-white/70"].join(" ")}>
           
-          <div className={["mx-auto w-full max-w-2xl rounded-2xl border min-h-[220px] max-h-[300px] overflow-y-auto p-7", isDark ? "border-white/10 bg-white/10" : "border-[#6A76AE]/35 bg-white/80"].join(" ")}>
-            {!listening ? (
+          <div className={["mx-auto w-full max-w-2xl rounded-2xl border min-h-[220px] max-h-[500px] overflow-y-auto p-7", isDark ? "border-white/10 bg-white/10" : "border-[#6A76AE]/35 bg-white/80"].join(" ")}>
+            
+            {/* LOGIC: Render Messages or Placeholder */}
+            {!listening && messages.length === 0 ? (
               <p className="text-[#B0BCF8]">Press start to begin live transcription...</p>
             ) : (
               <div className="leading-relaxed">
-                {demoTranscript.map((item, idx) => (
-                  <span key={idx} className="inline-block mr-3 mb-2">
+                
+                {/* 1. Finalized Messages from Gemini */}
+                {messages.map((item, idx) => (
+                  <span key={idx} className="inline-block mr-3 mb-2 animate-in fade-in duration-300">
                     <span style={getEmotionStyle(item.emotion)} className="text-xl sm:text-2xl font-medium">
                       {item.text}
                     </span>
-                    {emoticons && (
+                    {emoticons && EMOTION_STYLES[item.emotion] && (
                       <span className="ml-1 text-xl">
                         {EMOTION_STYLES[item.emotion]?.emoji}
                       </span>
                     )}
                   </span>
                 ))}
+
+                {/* 2. Live Ghost Text (Browser) */}
+                {listening && transcript && (
+                     <span className="inline-block mr-3 mb-2 opacity-50 italic text-xl sm:text-2xl" style={{color: isDark ? '#fff' : '#000'}}>
+                        {transcript} ...
+                     </span>
+                )}
+
               </div>
             )}
           </div>
@@ -136,6 +225,7 @@ export default function Listen({ theme = "light", setTheme }) {
   );
 }
 
+// Toggle Component (Unchanged)
 function Toggle({ label, value, onChange, isDark, alignRight = false }) {
   return (
     <div className={["flex flex-col gap-2", alignRight ? "items-end" : "items-start", "max-sm:items-center"].join(" ")}>
