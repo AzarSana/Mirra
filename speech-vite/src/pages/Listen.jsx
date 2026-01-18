@@ -126,7 +126,7 @@ export default function Listen({ theme = "light", setTheme }) {
             </button>
           </div>
 
-          <div className="mt-10 grid grid-cols-2 gap-auto max-w-2xl ">
+          <div className="mt-10 grid grid-cols-2 gap-auto max-w-2xl mx-auto">
             <Toggle label="Emojis" value={emoticons} onChange={setEmoticons} isDark={isDark} />
             <Toggle label="Colours" value={colours} onChange={setColours} isDark={isDark} alignRight />
           </div>
