@@ -28,15 +28,28 @@ export default function Listen({ theme = "light", setTheme }) {
   ];
 
   const getEmotionStyle = (emotionName) => {
+    // 1. Fix Font Names: Wrap fonts with spaces/numbers in quotes
+    const fontFix = {
+      "Source Serif 4": "'Source Serif 4', serif",
+      "Slackside One": "'Slackside One', cursive",
+      "Jersey 10": "'Jersey 10', cursive",
+      "Red Hat Mono": "'Red Hat Mono', monospace",
+      "Asap Condensed": "'Asap Condensed', sans-serif"
+    };
+
     const config = EMOTION_STYLES[emotionName];
     if (!config) return {};
 
+    const rawFont = config.fontFamily;
+    const styledFont = fontFix[rawFont] || rawFont;
+
     return {
-      fontFamily: config.fontFamily,
+      fontFamily: styledFont,
+      // 2. Fix Text Color: Use white/black theme colors when 'colours' is OFF
       color: colours 
         ? (isDark ? config.darkColor : config.lightColor) 
-        : "inherit",
-      transition: "all 0.3s ease",
+        : (isDark ? "#FFFFFF" : "#000000"), 
+      transition: "color 0.3s ease",
     };
   };
 
@@ -81,19 +94,18 @@ export default function Listen({ theme = "light", setTheme }) {
       <main className="relative z-10 flex items-center justify-center px-6 pb-10">
         <div className={["mt-10 w-full max-w-4xl rounded-3xl border p-10 sm:p-14", isDark ? "border-white/10 bg-white/5" : "border-[#B0BCF8]/35 bg-white/70"].join(" ")}>
           
-          {/* Transcript Area - Updated to allow phrases to sit side-by-side */}
-          <div className={["mx-auto w-full max-w-2xl rounded-2xl border min-h-[220px] max-h-[300px] overflow-y-auto p-7", isDark ? "border-white/10 bg-white/5" : "border-[#6A76AE]/35 bg-white/80"].join(" ")}>
+          <div className={["mx-auto w-full max-w-2xl rounded-2xl border min-h-[220px] max-h-[300px] overflow-y-auto p-7", isDark ? "border-white/10 bg-white/10" : "border-[#6A76AE]/35 bg-white/80"].join(" ")}>
             {!listening ? (
               <p className="text-[#B0BCF8]">Press start to begin live transcription...</p>
             ) : (
               <div className="leading-relaxed">
                 {demoTranscript.map((item, idx) => (
                   <span key={idx} className="inline-block mr-3 mb-2">
-                    <span style={getEmotionStyle(item.emotion)} className="text-xl sm:text-2xl">
+                    <span style={getEmotionStyle(item.emotion)} className="text-xl sm:text-2xl font-medium">
                       {item.text}
                     </span>
                     {emoticons && (
-                      <span className="ml-1 text-xl opacity-100">
+                      <span className="ml-1 text-xl">
                         {EMOTION_STYLES[item.emotion]?.emoji}
                       </span>
                     )}
