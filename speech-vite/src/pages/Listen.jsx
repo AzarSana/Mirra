@@ -1,36 +1,156 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import lightLogo from "../assets/lightLogo.png";
 import darkLogo from "../assets/darkLogo.png";
 import { EMOTION_STYLES } from "../styles/emotionStyles";
 
 export default function Listen({ theme = "light", setTheme }) {
   const isDark = theme === "dark";
-
-  // UI state
   const [listening, setListening] = useState(false);
   const [emoticons, setEmoticons] = useState(true);
   const [colours, setColours] = useState(true);
+  const [finalizedText, setFinalizedText] = useState(""); // <-- NEW
+
+  // Finalized subtitles: [{text, emotion}]
+  const [subtitles, setSubtitles] = useState([]);
+  // Interim text (not yet finalized)
+  const [currentText, setCurrentText] = useState("");
+  const recognitionRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const capturedStreamRef = useRef(null);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
-  // Demo transcript representing every emotion
-  const demoTranscript = [
-    { emotion: "Anger", text: "I AM SO MAD!" },
-    { emotion: "Happy", text: "Life is wonderful." },
-    { emotion: "Sad", text: "I'm feeling a bit down." },
-    { emotion: "Calm", text: "Everything is peaceful." },
-    { emotion: "Fear", text: "What was that noise?" },
-    { emotion: "Surprised", text: "I can't believe it!" },
-    { emotion: "Disgust", text: "That is quite unpleasant." },
-    { emotion: "Neutral", text: "It is what it is." },
-  ];
+  const handleListenToggle = () => {
+    if (listening) {
+      recognitionRef.current && recognitionRef.current.stop();
+      setListening(false);
+      stopRecording();
+      setCurrentText("");
+      setFinalizedText(""); // Optionally clear on stop
+    } else {
+      setSubtitles([]);
+      setCurrentText("");
+      setFinalizedText(""); // Clear on new session
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("❌ Browser not supported. Please use Google Chrome.");
+        return;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event) => {
+        let interim = "";
+        let final = "";
+
+        for (let i = 0; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            final += event.results[i][0].transcript + " ";
+          } else {
+            interim += event.results[i][0].transcript;
+          }
+        }
+
+        setFinalizedText(final);      // All finalized so far
+        setCurrentText(interim);      // The full interim segment
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech Error:", event.error);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+      setListening(true);
+      startRecording();
+    }
+  };
+
+  // Audio recording helpers
+  const startRecording = () => {
+    navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        sampleRate: 16000,
+      }
+    }).then(stream => {
+      capturedStreamRef.current = stream;
+      audioChunksRef.current = [];
+      const mediaRecorder = new window.MediaRecorder(stream, { mimeType: 'audio/wav' });
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+    }).catch((e) => {
+      console.error('Error accessing microphone', e);
+    });
+  };
+
+  const stopRecording = () => {
+    return new Promise(resolve => {
+      const mediaRecorder = mediaRecorderRef.current;
+      if (!mediaRecorder) {
+        resolve(null);
+        return;
+      }
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+        if (capturedStreamRef.current) {
+          capturedStreamRef.current.getTracks().forEach(track => track.stop());
+        }
+        resolve(audioBlob);
+      };
+      mediaRecorder.stop();
+    });
+  };
+
+  // Send audio to backend for sentiment analysis
+  const sendAudioToBackend = (audioBlob, transcript) => {
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'segment.wav');
+    fetch('http://localhost:5000/classify', {
+      method: 'POST',
+      body: formData,
+    })
+      .then(res => res.json())
+      .then(data => {
+        // Update the last subtitle with emotion
+        setSubtitles(prev => {
+          const updated = [...prev];
+          if (updated.length > 0) {
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              emotion: data.label ? data.label : 'Unknown'
+            };
+          }
+          return updated;
+        });
+      })
+      .catch(() => {
+        setSubtitles(prev => {
+          const updated = [...prev];
+          if (updated.length > 0) {
+            updated[updated.length - 1] = {
+              ...updated[updated.length - 1],
+              emotion: 'Error'
+            };
+          }
+          return updated;
+        });
+      });
+  };
 
   const getEmotionStyle = (emotionName) => {
     const config = EMOTION_STYLES[emotionName];
     if (!config) return {};
-
     return {
       fontFamily: config.fontFamily,
       color: colours 
@@ -80,58 +200,40 @@ export default function Listen({ theme = "light", setTheme }) {
 
       <main className="relative z-10 flex items-center justify-center px-6 pb-10">
         <div className={["mt-10 w-full max-w-4xl rounded-3xl border p-10 sm:p-14", isDark ? "border-white/10 bg-white/5" : "border-[#B0BCF8]/35 bg-white/70"].join(" ")}>
-          
-          {/* Transcript Area - Updated to allow phrases to sit side-by-side */}
           <div className={["mx-auto w-full max-w-2xl rounded-2xl border min-h-[220px] max-h-[300px] overflow-y-auto p-7", isDark ? "border-white/10 bg-white/5" : "border-[#6A76AE]/35 bg-white/80"].join(" ")}>
-            {!listening ? (
+            {!listening && subtitles.length === 0 ? (
               <p className="text-[#B0BCF8]">Press start to begin live transcription...</p>
             ) : (
-              <div className="leading-relaxed">
-                {demoTranscript.map((item, idx) => (
-                  <span key={idx} className="inline-block mr-3 mb-2">
-                    <span style={getEmotionStyle(item.emotion)} className="text-xl sm:text-2xl">
-                      {item.text}
-                    </span>
-                    {emoticons && (
-                      <span className="ml-1 text-xl opacity-100">
-                        {EMOTION_STYLES[item.emotion]?.emoji}
-                      </span>
-                    )}
-                  </span>
-                ))}
+              <div
+                className="w-full text-xl sm:text-2xl leading-relaxed break-words"
+                style={{
+                  color: isDark ? "#fff" : "#111",
+                  minHeight: "2.5em",
+                  wordBreak: "break-word",
+                  transition: "color 0.2s",
+                  fontWeight: 500,
+                  letterSpacing: "0.01em",
+                  textShadow: isDark ? "0 2px 8px #0008" : "0 2px 8px #fff8",
+                  padding: "0.5em 0"
+                }}
+              >
+                {finalizedText}
+                {listening && currentText && (
+                  <span style={{ color: "#bbb" }}>{currentText}</span>
+                )}
               </div>
             )}
           </div>
-
           <div className="mt-10 flex flex-col items-center">
             <button
-              onClick={() => setListening(!listening)}
+              onClick={handleListenToggle}
               className={["w-full max-w-2xl rounded-2xl px-8 py-3 text-lg font-bold transition active:scale-[0.99]", listening ? "bg-[#B0BCF8] text-black/85" : "bg-[#6A76AE] text-white"].join(" ")}
             >
               {listening ? "Stop Listening" : "Start Listening"}
             </button>
           </div>
-
-          <div className="mt-10 grid grid-cols-2 gap-10 max-w-2xl mx-auto max-sm:grid-cols-1">
-            <Toggle label="Emojis" value={emoticons} onChange={setEmoticons} isDark={isDark} />
-            <Toggle label="Colours" value={colours} onChange={setColours} isDark={isDark} alignRight />
-          </div>
         </div>
       </main>
-    </div>
-  );
-}
-
-function Toggle({ label, value, onChange, isDark, alignRight = false }) {
-  return (
-    <div className={["flex flex-col gap-2", alignRight ? "items-end" : "items-start", "max-sm:items-center"].join(" ")}>
-      <div className={["text-lg font-medium", isDark ? "text-white/90" : "text-black/85"].join(" ")}>{label}</div>
-      <button
-        onClick={() => onChange(!value)}
-        className={["relative h-6 w-12 rounded-full border transition", value ? "bg-[#7A86D6]/90" : isDark ? "bg-white/10" : "bg-black/10"].join(" ")}
-      >
-        <span className={["absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full transition", value ? "left-7 bg-white" : "left-1 bg-white/90"].join(" ")} />
-      </button>
     </div>
   );
 }
