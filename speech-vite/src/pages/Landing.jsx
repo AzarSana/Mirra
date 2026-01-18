@@ -109,16 +109,42 @@ export default function Landing() {
           {/* HERO (top on iPad/Phone) */}
           <div className="w-full">
             <h1
-              className={[
-                "text-[76px] font-semibold leading-[1.05] tracking-tight",
-                "max-md:text-[56px] max-sm:text-[44px]",
-                isDark ? "text-white/90" : "text-black/90",
-              ].join(" ")}
-            >
-              See <span className="text-[#7A86D6] font-bold">Emotion</span> in
-              <br />
-              <span className="text-[#7A86D6] font-bold">Every Word</span>.
-            </h1>
+  className={[
+    "text-[76px] font-semibold leading-[1.05] tracking-tight",
+    "max-md:text-[56px] max-sm:text-[44px]",
+    isDark ? "text-white/90" : "text-black/90",
+  ].join(" ")}
+>
+  See{" "}
+  <span
+    className="
+      font-bold
+      bg-gradient-to-r
+      from-[#6A76AE]
+      to-[#B0BCF8]
+      bg-clip-text
+      text-transparent
+    "
+  >
+    Emotion
+  </span>{" "}
+  in
+  <br />
+  <span
+    className="
+      font-bold
+      bg-gradient-to-r
+      from-[#6A76AE]
+      to-[#B0BCF8]
+      bg-clip-text
+      text-transparent
+    "
+  >
+    Every Word
+  </span>
+  .
+</h1>
+
 
             <p
               className={[

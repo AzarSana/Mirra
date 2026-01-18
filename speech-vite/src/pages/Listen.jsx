@@ -101,11 +101,11 @@ export default function Listen({ theme = "light", setTheme }) {
         ) : (
           <h2
             className={[
-              "text-xl font-medium sm:text-3xl",
+              "text-gxl font-medium sm:text-3xl",
               isDark ? "text-white/90" : "text-black/90",
             ].join(" ")}
           >
-            We’re listening when you’re ready.
+            We’ll listen when you’re ready.
           </h2>
         )}
       </div>
@@ -119,7 +119,7 @@ export default function Listen({ theme = "light", setTheme }) {
             "max-md:p-8 max-sm:p-6",
             isDark
               ? "border-white/10 bg-white/5"
-              : "border-[#7A86D6]/35 bg-white/70",
+              : "border-[#B0BCF8]/35 bg-white/70",
           ].join(" ")}
         >
           {/* Transcript area (desktop unchanged; a bit taller on tablet/phone) */}
@@ -133,11 +133,11 @@ export default function Listen({ theme = "light", setTheme }) {
               "scroll-smooth",
               isDark
                 ? "border-white/10 bg-white/5"
-                : "border-[#7A86D6]/35 bg-white/80",
+                : "border-[#6A76AE]/35 bg-white/80",
             ].join(" ")}
           >
             {!listening ? (
-              <p className="text-[#7A86D6] text-base sm:text-lg">
+              <p className="text-[#B0BCF8] text-sm sm:text-base">
                 Press start to begin live transcription...
               </p>
             ) : (
@@ -184,7 +184,7 @@ export default function Listen({ theme = "light", setTheme }) {
               className={[
                 "w-full max-w-2xl max-md:max-w-full",
                 "rounded-2xl px-8 py-5 text-lg font-bold transition active:scale-[0.99]",
-                listening ? "bg-[#AEBBFF] text-black/85" : "bg-[#7A86D6] text-white",
+                listening ? "bg-[#B0BCF8] text-black/85" : "bg-[#6A76AE] text-white",
                 "hover:opacity-95",
                 isDark
                   ? "shadow-[0_14px_50px_rgba(122,134,214,0.18)]"
