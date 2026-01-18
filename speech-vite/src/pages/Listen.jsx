@@ -142,7 +142,7 @@ function Toggle({ label, value, onChange, isDark, alignRight = false }) {
       <div className={["text-lg font-medium", isDark ? "text-white/90" : "text-black/85"].join(" ")}>{label}</div>
       <button
         onClick={() => onChange(!value)}
-        className={["relative h-6 w-12 rounded-full border transition", value ? "bg-[#7A86D6]/90" : isDark ? "bg-white/10" : "bg-black/10"].join(" ")}
+        className={["relative h-6 w-12 rounded-full transition", value ? "bg-[#7A86D6]/90" : isDark ? "bg-white/10" : "bg-black/10"].join(" ")}
       >
         <span className={["absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full transition", value ? "left-7 bg-white" : "left-1 bg-white/90"].join(" ")} />
       </button>
