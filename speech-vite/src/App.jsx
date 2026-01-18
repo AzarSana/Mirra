@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Landing from "./pages/Landing";
 import MicPermission from "./pages/MicPermissions";
 import Listen from "./pages/Listen";
-import Transcript from "./pages/Transcript";
 
 export default function App() {
   const getInitialTheme = () =>
@@ -30,7 +29,6 @@ export default function App() {
           element={<MicPermission theme={theme} setTheme={setTheme} />}
         />
         <Route path="/listen" element={<Listen theme={theme} setTheme={setTheme} />} />
-        <Route path="/hi" element={<Transcript />} />
       </Routes>
     </BrowserRouter>
   );

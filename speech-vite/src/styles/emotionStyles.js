@@ -30,7 +30,7 @@ export const EMOTION_STYLES = {
     emoji: "😊",
   },
   Neutral: {
-    fontFamily: "Inter",
+    fontFamily: "Satoshi",
     lightColor: "#111827",
     darkColor: "#F3F4F6",
     emoji: "😐",
