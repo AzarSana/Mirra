@@ -25,6 +25,7 @@ export default function Listen({ theme = "light", setTheme }) {
     { emotion: "Surprised", text: "I can't believe it!" },
     { emotion: "Disgust", text: "That is quite unpleasant." },
     { emotion: "Neutral", text: "It is what it is." },
+    { emotion: "Sarcasm", text: "Oh, that's just GREAT." },
   ];
 
   const getEmotionStyle = (emotionName) => {
@@ -34,7 +35,8 @@ export default function Listen({ theme = "light", setTheme }) {
       "Slackside One": "'Slackside One', cursive",
       "Jersey 10": "'Jersey 10', cursive",
       "Red Hat Mono": "'Red Hat Mono', monospace",
-      "Asap Condensed": "'Asap Condensed', sans-serif"
+      "Asap Condensed": "'Asap Condensed', sans-serif",
+      "Baloo Bhai 2": "'Baloo Bhai 2', cursive"
     };
 
     const config = EMOTION_STYLES[emotionName];

@@ -47,4 +47,10 @@ export const EMOTION_STYLES = {
     darkColor: "#FCD34D",
     emoji: "😲",
   },
+  Sarcasm: {
+    fontFamily: "'Baloo Bhai 2', cursive", 
+    lightColor: "#00CED1", 
+    darkColor: "#40E0D0", 
+    emoji: "🙄",
+  },
 };
